@@ -27,6 +27,11 @@ export default new Router({
       path: '/create',
       name: 'CreateActivities',
       component: CreateActivities,
-    }
+    },
+    {
+      path: '/create/:id/edit',
+      name: 'create.edit',
+      component: CreateActivities
+    },
   ]
 })
