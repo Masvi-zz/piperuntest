@@ -1,7 +1,8 @@
+
 import 'bootstrap/dist/css/bootstrap.css'
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import router from './router/routes'
 
 
 Vue.config.productionTip = false
@@ -12,3 +13,4 @@ new Vue({
 
   render: h => h(App),
 });
+

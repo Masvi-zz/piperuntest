@@ -3,23 +3,13 @@ import axios from '../config/axios';
 
 export default {
   login: async (email, password) => {
-    await axios.post('auth?', { email, password }).then(resp => {
+    axios.post('auth?', { email, password }).then(resp => {
       const token = resp.data.data.me.token;
-      localStorage.setItem('token', token);
-
-      if (token)
-        return { 'Authorization': 'Bearer ' + token };
-      else {
-        return { 'invalid': false };
-      }
+      localStorage.setItem('token', resp.data.data.me.token);
+      localStorage.setItem('account_id', resp.data.data.me.account_id);
+      return token;
     }).catch(err => {
       console.log(err);
     })
   }
 }
-
-
-
-
-
-

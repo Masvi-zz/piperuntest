@@ -1,21 +1,36 @@
-
 import axios from '../config/axios';
-const qs = require('qs');
 
 export default {
 
-  get: () => {
-    return axios.get('activities');
+  get: (params) => {
+    return (params) ? axios.get('activities', { params }) : axios.get('activities');
   },
 
-  delete: (activity_id) => {
-    return axios.delete('activities', qs.stringify({ 'activity_id': activity_id }));
-  },
-
-  create: (activity) => {
-    var act = JSON.stringify(activity);
-    return axios.post('activities', act).then(response => {
-      console.log(response)
+  create: async (activity) => {
+    activity.account_id = localStorage.getItem("account_id");
+    return axios.post('activities', activity).then(res => {
+      console.log(res);
     });
+  },
+
+  delete: async (activity_id) => {
+    return axios.delete('activities/' + activity_id).then(res => {
+      console.log(res);
+    });
+  },
+
+  updateDateConclusion: async (activity_id, end_at) => {
+    return await axios.put('activities/' + activity_id, { 'end_at': end_at, 'status': 2 }).then(res => {
+      console.log(res);
+    })
+  },
+
+  updateActivity: async (activity_id, activity) => {
+    activity.account_id = localStorage.getItem("account_id");
+    return axios.put('activities/' + activity_id, activity);
+  },
+
+  findById: (activity_id) => {
+    return axios.get('activities/' + activity_id);
   }
 }

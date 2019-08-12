@@ -6,7 +6,7 @@
       <a href="#">Empresas</a>
       <a href="#">Pessoas</a>
       <a href="#">Dashboard</a>
-      <a href="#">Logout</a>
+      <a href="#" @click.prevent.stop="logout()">Logout</a>
     </div>
   </div>
 </template>
@@ -18,7 +18,12 @@ export default {
     return {};
   },
   filters: {},
-  methods: {}
+  methods: {
+    logout() {
+      localStorage.setItem("token", "");
+      this.$router.push({ name: "Login" });
+    }
+  }
 };
 </script>
 
@@ -77,4 +82,3 @@ export default {
   padding-right: 8px;
 }
 </style>
-

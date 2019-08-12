@@ -1,59 +1,65 @@
 <template>
   <div class="activities">
     <h2>Atividades</h2>
-
-    <button
-      type="button"
-      class="btn btn-primary pull-left"
-      @click.prevent.stop="createNewActivit()"
-    >Adcionar nova atividade</button>
+    <div class="btn-group">
+      <button
+        type="button"
+        class="btn btn-primary pull-left"
+        @click.prevent.stop="createNewActivity()"
+      >Adcionar nova atividade</button>
+    </div>
+    <date-picker
+      @confirm="findByDates"
+      v-model="range"
+      lang="pt-br"
+      range
+      type="date"
+      confirm
+      format="DD-MM-YYYY"
+    ></date-picker>
 
     <table id="mytable" class="table table-bordred table-striped">
       <thead>
-        <th>nome</th>
-        <th>Editar</th>
-        <th>Concluir</th>
-        <th>Excluir</th>
+        <th>Nome</th>
+        <th>Status</th>
+        <th>Conclusão</th>
+        <th>Ações</th>
       </thead>
       <tbody>
         <tr v-for="item in activitiesList">
           <td>{{item.title}}</td>
+          <td>{{item.status}}</td>
           <td>
-            <p data-placement="top" data-toggle="tooltip" title="Edit">
-              <button
-                @click.prevent.stop="updateActivity(item.id)"
-                class="btn btn-primary btn-sm btn-table"
-                data-title="Edit"
-                data-toggle="modal"
-                data-target="#edit"
-              >
-                <span class="button btn-sm">Editar</span>
-              </button>
-            </p>
+            <span>{{item.end_at | datesFilter }}</span>
           </td>
           <td>
-            <p data-placement="top" data-toggle="tooltip" title="Edit">
+            <div class="btn-group">
+              <button
+                @click.prevent.stop="updateActivity(item.id)"
+                class="btn btn-primary btn-sm"
+                data-title="Edit"
+                data-target="#edit"
+              >
+                <router-link :to="{name: 'EditActivities', params: {id: item.id} }">
+                  <span class="button btn-sm">Editar</span>
+                </router-link>
+              </button>
+            </div>
+            <div class="btn-group">
               <button
                 class="btn btn-primary btn-sm"
                 data-title="Edit"
-                data-toggle="modal"
                 data-target="#edit"
+                @click.prevent.stop="concludeActivity(item.id)"
               >
                 <span class="button btn-sm">Concluir</span>
               </button>
-            </p>
-          </td>
-          <td>
-            <p data-placement="top" data-toggle="tooltip" title="Edit">
-              <button
-                class="btn btn-danger btn-sm"
-                data-title="Edit"
-                data-toggle="modal"
-                data-target="#edit"
-              >
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-danger btn-sm" data-title="delete" data-target="#delete">
                 <span class="button btn-sm" @click.prevent.stop="deleteActivities(item.id)">Excluir</span>
               </button>
-            </p>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -63,36 +69,79 @@
 
 <script>
 import ActivitiesService from "../services/ActivitiesService";
+import moment from "moment";
+import DatePicker from "vue2-datepicker";
 
 export default {
+  components: {
+    DatePicker
+  },
+  filters: {},
   name: "Activities",
   data() {
     return {
-      activitiesList: []
+      activitiesList: [],
+      date: "",
+      range: " ",
+      lang: {}
     };
   },
-  filters: {},
+  filters: {
+    datesFilter(date) {
+      return moment(String(date)).format("YYYY-MM-DD HH:mm:ss");
+    }
+  },
+
   methods: {
-    createNewActivit() {
+    createNewActivity() {
       this.$router.push({ name: "CreateActivities" });
     },
 
     listActivities() {
-      ActivitiesService.get().then(res => {
+      ActivitiesService.get(null).then(res => {
         this.activitiesList = res.data.data;
+        console.log(this.activitiesList);
       });
     },
 
-    deleteActivities(id) {
-      ActivitiesService.delete(id).then(res => {
+    findByDates() {
+      if (this.range.length > 0) {
+        var params = {
+          internal_date_start: this.formatDate(this.range[0]),
+          internal_date_end: this.formatDate(this.range[1])
+        };
+      }
+      var list = ActivitiesService.get(params);
+    },
+
+    deleteActivities(activity_id) {
+      ActivitiesService.delete(activity_id).then(res => {
         this.listActivities();
       });
     },
 
-    updateActivity(id) {
-      console.log("update: " + id);
+    updateActivity(activity_id) {
+      var activity_edit = this.activitiesList.filter(
+        act => act.id == activity_id
+      );
+      this.minhaProp = activity_edit[0];
+    },
+
+    concludeActivity(activity_id) {
+      ActivitiesService.updateDateConclusion(
+        activity_id,
+        this.formatDate(new Date())
+      );
+      this.listActivities();
+    },
+
+    formatDate: function(value) {
+      if (value) {
+        return moment(String(value)).format("YYYY-MM-DDTHH:mm:ss-03:00");
+      }
     }
   },
+
   mounted() {
     this.listActivities();
   }
@@ -103,5 +152,10 @@ export default {
 .activities {
   margin-left: 100px;
 }
+.btn-sm a {
+  color: #fff;
+}
+.btn-group {
+  margin-right: 2px !important;
+}
 </style>
-
