@@ -48,8 +48,8 @@ export default {
   name: "Login",
   data() {
     return {
-      user: "jeanmasvi@gmail.com",
-      password: "kde01tux%",
+      user: "",
+      password: "",
       token: " "
     };
   },
